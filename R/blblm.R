@@ -161,8 +161,8 @@ print.blblm <- function(x, ...) {
 #' @param core integer indicating number of cores for parallel computing
 #' @param ... so on
 #'
-#' @export
 #' @method sigma blblm
+#' @export
 sigma.blblm <- function(object, confidence = FALSE,
                         level = 0.95, para  = FALSE, core = 4 ,...) {
 
@@ -203,9 +203,8 @@ sigma.blblm <- function(object, confidence = FALSE,
 #' @param para logical indicating parallel computing
 #' @param core integer indiciating number of cores
 #' @param ... so on
-#' @export
 #' @method coef blblm
-
+#' @export
 coef.blblm <- function(object, para = FALSE, core = 2, ...) {
   est <- object$estimates
   if(para == FALSE){
@@ -227,8 +226,8 @@ coef.blblm <- function(object, para = FALSE, core = 2, ...) {
 #' @param core integer indicating number of cores in parallel computing
 #' @param ... so on
 #'
-#' @export
 #' @method confint blblm
+#' @export
 confint.blblm <- function(object, parm = NULL, level = 0.95, para = FALSE, core = 2, ...) {
 
   if(para == FALSE){
@@ -279,8 +278,8 @@ confint.blblm <- function(object, parm = NULL, level = 0.95, para = FALSE, core 
 #' @param core integer indicating number of core in parallel computing
 #' @param ... so on
 #'
-#' @export
 #' @method predict blblm
+#' @export
 predict.blblm <- function(object, new_data, confidence = FALSE, level = 0.95, para = FALSE, core = 2, ...) {
 
   if(para == FALSE){

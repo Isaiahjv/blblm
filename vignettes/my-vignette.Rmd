@@ -1,12 +1,12 @@
 ---
-title: "vignette"
-author: "Isaiah Valencia"
-date: "6/11/2020"
-output:
-  pdf_document: default
-  html_document: default
+title: "Blblm"
+author: Isaiah Valencia
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Bootstrapping Linear Models}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
 ---
-
 
 ```{r, include = FALSE}
 knitr::opts_chunk$set(
@@ -38,6 +38,8 @@ train = Hitters[train_indices,]
 test = Hitters[-train_indices,]
 ```
 
+### Model fitting
+
 Now lets fit a poisson, negative binomial, and a linear regression model using parallelization with 4 cores to compute. We are predicting Years in leagure for poisson and negative binomial regression, and hits for linear regression.
 ```{r}
 
@@ -53,28 +55,24 @@ linear <- blblm(Hits~AtBat + + HmRun + Runs + RBI + Walks + Years + Salary,
 models = list("poisson" = poiss,"negative binomial" = neg,"linear regression" = linear)
 
 ```
-
+### Estimation
 Here are the coefficient estimates for the models, using function `coef.blblm` with parallel computing using 4 cores.
 ```{r}
-models %>% map( ~coef.blblm(.,para = TRUE, core = 4))
+models %>% map( ~coef(.,para = TRUE, core = 4))
 ```
+
+### confidence intervals
 
 Confidence intervals can be computed for the estimates above using `confint.blblm` by parallel computing with 4 cores
 ```{r}
-models %>% map( ~confint.blblm(.))
+models %>% map( ~confint(.,para = TRUE, core = 4))
 ```
 
-Another feature of blblm is preediction using parallel computing, with 4 cores. the first 5 predictions are shown.
+### Prediction
+
+Another feature of blblm is preediction using parallel computing, with 4 cores.
 ```{r}
-pred <- models %>% map( ~predict.blblm(.,test,para = TRUE,core = 4))
-pred$poisson %>% map_dbl(~exp(.))[1:5]
-pred$`negative binomial` %>% map_dbl(~exp(.))[1:5]
-pred$linear[1:5]
+pred <- models %>% map( ~predict(.,test,para = TRUE,core = 4) )
+pred
 ```
 
-
-
-Here are the coefficient estimates for the models, using function `coef.blblm` with parallel computing using 4 cores.
-```{r}
-models %>% map( function(x) coef.blblm(x,para = TRUE, core = 4))
-```

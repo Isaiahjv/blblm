@@ -16,9 +16,4 @@ test_that("type test", {
 
 
 
-
-
-
-
-
 })
