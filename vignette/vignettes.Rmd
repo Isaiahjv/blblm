@@ -1,0 +1,80 @@
+---
+title: "vignette"
+author: "Isaiah Valencia"
+date: "6/11/2020"
+output:
+  pdf_document: default
+  html_document: default
+---
+
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+```{r setup}
+library(blblm)
+library(tidyverse)
+library(ISLR)
+```
+
+### Blblm in Action
+
+*The following exemplifies blblm with and without parallelization. We are going to looking at Major League Baseball Data from the 1986 and 1987 seasons, from ISLR.*
+
+
+first some traning and test data.
+```{r,echo=FALSE}
+data("Hitters")
+Hitters <- na.omit(Hitters)
+Hitters <- Hitters%>% dplyr::select(AtBat:Years, Salary)
+size = round(.80*nrow(Hitters))
+train_indices = sample( seq_len(nrow(Hitters)), size = size)
+
+train = Hitters[train_indices,]
+test = Hitters[-train_indices,]
+```
+
+Now lets fit a poisson, negative binomial, and a linear regression model using parallelization with 4 cores to compute. We are predicting Years in leagure for poisson and negative binomial regression, and hits for linear regression.
+```{r}
+
+poiss <- blblm(Years~ AtBat + Hits + HmRun + Runs + RBI + Walks + Salary , 
+               data = train, model = 'poisson', m = 3, B = 100, para = TRUE, core = 4)
+
+neg <- blblm(Years~ AtBat + Hits + HmRun + Runs + RBI + Walks + Salary, 
+             data = train, model = 'neg', m = 3, B = 100, para = TRUE, core = 4)
+
+linear <- blblm(Hits~AtBat + + HmRun + Runs + RBI + Walks + Years + Salary, 
+                data = train, m = 3, B = 100, para = TRUE, core = 4)
+
+models = list("poisson" = poiss,"negative binomial" = neg,"linear regression" = linear)
+
+```
+
+Here are the coefficient estimates for the models, using function `coef.blblm` with parallel computing using 4 cores.
+```{r}
+models %>% map( ~coef.blblm(.,para = TRUE, core = 4))
+```
+
+Confidence intervals can be computed for the estimates above using `confint.blblm` by parallel computing with 4 cores
+```{r}
+models %>% map( ~confint.blblm(.))
+```
+
+Another feature of blblm is preediction using parallel computing, with 4 cores. the first 5 predictions are shown.
+```{r}
+pred <- models %>% map( ~predict.blblm(.,test,para = TRUE,core = 4))
+pred$poisson %>% map_dbl(~exp(.))[1:5]
+pred$`negative binomial` %>% map_dbl(~exp(.))[1:5]
+pred$linear[1:5]
+```
+
+
+
+Here are the coefficient estimates for the models, using function `coef.blblm` with parallel computing using 4 cores.
+```{r}
+models %>% map( function(x) coef.blblm(x,para = TRUE, core = 4))
+```
